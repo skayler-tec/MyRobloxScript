@@ -1,37 +1,41 @@
--- إنشاء واجهة بسيطة (GUI)
 local ScreenGui = Instance.new("ScreenGui")
 local MainButton = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
 
 ScreenGui.Parent = game.CoreGui
 MainButton.Parent = ScreenGui
-MainButton.Size = UDim2.new(0, 200, 0, 50)
-MainButton.Position = UDim2.new(0.5, -100, 0.4, 0)
-MainButton.Text = "انتقال لأقرب أرض"
-MainButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+MainButton.Size = UDim2.new(0, 150, 0, 45)
+MainButton.Position = UDim2.new(0.85, 0, 0.5, 0) -- الزر سيكون على يمين الشاشة
+MainButton.Text = "هبوط سريع"
+MainButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainButton.Font = Enum.Font.SourceSansBold
+MainButton.TextSize = 20
 
--- وظيفة البحث عن أقرب ارتفاع أقل (Raycasting)
-local function teleportToGround()
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainButton
+
+-- وظيفة الهبوط التلقائي
+local function fastDrop()
     local player = game.Players.LocalPlayer
     local character = player.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
         local rootPart = character.HumanoidRootPart
         
-        -- إرسال شعاع وهمي للأسفل لمسافة 500 متر
+        -- إطلاق شعاع فحص للأسفل لمسافة طويلة
         local raycastParams = RaycastParams.new()
         raycastParams.FilterDescendantsInstances = {character}
         raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
         
-        local raycastResult = workspace:Raycast(rootPart.Position, Vector3.new(0, -500, 0), raycastParams)
+        -- الشعاع ينطلق من مركز اللاعب لأسفل
+        local raycastResult = workspace:Raycast(rootPart.Position, Vector3.new(0, -1000, 0), raycastParams)
         
         if raycastResult then
-            -- نقل اللاعب لنقطة التصادم (الأرض) مع رفعه قليلاً لكي لا يغرز
+            -- النقل لسطح البلوك المكتشف + رفعه بمقدار بسيط جداً ليقف فوقه
             rootPart.CFrame = CFrame.new(raycastResult.Position + Vector3.new(0, 3, 0))
-            print("تم الانتقال بنجاح!")
-        else
-            print("لم يتم العثور على أرض تحتك!")
         end
     end
 end
 
--- تشغيل الوظيفة عند الضغط على الزر
-MainButton.MouseButton1Click:Connect(teleportToGround)
+-- ربط الزر بالوظيفة
+MainButton.MouseButton1Click:Connect(fastDrop)
